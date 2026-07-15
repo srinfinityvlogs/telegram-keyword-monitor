@@ -1,0 +1,37 @@
+[
+  {
+    "pattern": "Instamart",
+    "match_type": "whole_word",
+    "category": "Deals",
+    "exclusion": false,
+    "enabled": true
+  },
+  {
+    "pattern": "Swiggy",
+    "match_type": "substring",
+    "category": "Deals",
+    "exclusion": false,
+    "enabled": true
+  },
+  {
+    "pattern": "Zepto",
+    "match_type": "whole_word",
+    "category": "Deals",
+    "exclusion": false,
+    "enabled": true
+  },
+  {
+    "pattern": "Blinkit",
+    "match_type": "whole_word",
+    "category": "Deals",
+    "exclusion": false,
+    "enabled": true
+  },
+  {
+    "pattern": "Big Basket",
+    "match_type": "substring",
+    "category": "Deals",
+    "exclusion": true,
+    "enabled": true
+  }
+]
