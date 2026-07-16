@@ -1,4 +1,4 @@
-import os
+SOURCE_CHAT_IDSimport os
 import json
 import asyncio
 from pathlib import Path
@@ -16,7 +16,7 @@ API_HASH = os.getenv("TELEGRAM_API_HASH")
 SESSION = os.getenv("TELEGRAM_SESSION")
 
 # --- CONFIGURE THESE ---
-SOURCE_CHAT_IDS = [-1001412868909]   # DealBee Deals
+SOURCE_CHAT_IDS = [-1001412868909, -1001596448068]   # DealBee Deals and DealBee Tips, Tricks and Loots
 NOTIFY_CHAT_ID = -5121609042         # Deals Notification
 # ------------------------
 
