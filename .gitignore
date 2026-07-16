@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 seen_messages.json
 .DS_Store
+seen_content.json
