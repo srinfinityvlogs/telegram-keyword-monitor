@@ -33,5 +33,19 @@
     "category": "Deals",
     "exclusion": true,
     "enabled": true
+  },
+  {
+    "pattern": "Bigbasket",
+    "match_type": "substring",
+    "category": "Deals",
+    "exclusion": false,
+    "enabled": true
+  },
+  {
+    "pattern": "BigBasket",
+    "match_type": "substring",
+    "category": "Deals",
+    "exclusion": false,
+    "enabled": true
   }
 ]

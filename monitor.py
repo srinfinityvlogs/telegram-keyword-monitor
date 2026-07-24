@@ -1,14 +1,14 @@
 import os
-import json
 import re
-import hashlib
+import json
 import asyncio
-import time
 from pathlib import Path
+from datetime import datetime
 from dotenv import load_dotenv
 from telethon import TelegramClient, events
 from telethon.sessions import StringSession
 from telethon.errors import FloodWaitError
+from telethon.tl.types import MessageMediaWebPage
 
 from matcher import check_message, load_keywords
 
@@ -26,7 +26,7 @@ NOTIFY_CHAT_ID = -5121609042         # Deals Notification
 DEDUP_FILE = Path("seen_messages.json")
 CONTENT_DEDUP_FILE = Path("seen_content.json")
 MAX_DEDUP_ENTRIES = 5000
-CONTENT_DEDUP_TTL_SECONDS = 24 * 60 * 60  # 24 hours — same content won't re-alert within this window
+CONTENT_DEDUP_TTL_SECONDS = 24 * 60 * 60  # 24 hours
 
 client = TelegramClient(StringSession(SESSION), API_ID, API_HASH)
 
@@ -51,14 +51,14 @@ def load_seen_content():
     if CONTENT_DEDUP_FILE.exists():
         try:
             with open(CONTENT_DEDUP_FILE, "r") as f:
-                return json.load(f)  # {hash: timestamp}
+                return json.load(f)
         except (json.JSONDecodeError, ValueError):
             return {}
     return {}
 
 
 def save_seen_content(content_dict):
-    # Purge expired entries before saving, keeps file bounded
+    import time
     now = time.time()
     pruned = {h: ts for h, ts in content_dict.items() if now - ts < CONTENT_DEDUP_TTL_SECONDS}
     with open(CONTENT_DEDUP_FILE, "w") as f:
@@ -66,12 +66,11 @@ def save_seen_content(content_dict):
 
 
 def normalize_text(text):
-    # Lowercase, collapse whitespace, strip — so minor formatting differences
-    # between the same deal posted in two groups don't evade the hash match
     return re.sub(r"\s+", " ", text.strip().lower())
 
 
 def content_hash(text):
+    import hashlib
     normalized = normalize_text(text)
     return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
@@ -91,15 +90,14 @@ async def handler(event):
     if result["excluded_by"] or not result["matched"]:
         return
 
-    # Dedup #1: exact same message (same chat, same message ID)
     key = f"{event.chat_id}:{event.id}"
     if key in seen_messages:
         return
     seen_messages.add(key)
     save_seen(seen_messages)
 
-    # Dedup #2: same content posted across different chats within the TTL window
     chash = content_hash(text)
+    import time
     now = time.time()
     if chash in seen_content and (now - seen_content[chash]) < CONTENT_DEDUP_TTL_SECONDS:
         print(f"[SKIPPED - DUPLICATE CONTENT] chat={event.chat_id}")
@@ -113,7 +111,8 @@ async def handler(event):
         f"---"
     )
 
-    await send_with_retry(notification, event.media)
+    real_media = event.media if event.media and not isinstance(event.media, MessageMediaWebPage) else None
+    await send_with_retry(notification, real_media)
 
     matched_labels = ", ".join(f"{m['pattern']} ({m['category']})" for m in result["matched"])
     print(f"[FORWARDED] {matched_labels}")
